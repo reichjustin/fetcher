@@ -44,5 +44,15 @@ dependencies {
     compile 'io.github.rybalkinsd:kohttp:0.7.1'
     compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
-    testCompile "io.ktor:ktor-server-tests:$ktor_version"
+    compile "org.mortbay.jetty.alpn:alpn-boot:8.1.9.v20160720"
+}
+
+jar {
+    baseName = "com.fetcher"
+
+    manifest {
+        attributes 'Main-Class': 'com.fetcher.ApplicationKt'
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }

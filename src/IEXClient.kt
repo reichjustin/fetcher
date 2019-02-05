@@ -1,13 +1,13 @@
-package com.fetcher
+package com.fetcher.iex
 
+import com.fetcher.dtos.StockPrice
 import io.github.rybalkinsd.kohttp.ext.asyncHttpGet
-data class StockPrice(val price: Double?)
 
 interface IClient {
-  suspend fun retrievePriceAsync(ticker: String): StockPrice?
+    suspend fun retrievePriceAsync(ticker: String): StockPrice?
 }
 
-class IEXClient: IClient {
+object IEXClient : IClient {
     private val _url = "https://api.iextrading.com/1.0/"
 
     override suspend fun retrievePriceAsync(ticker: String): StockPrice? {
@@ -15,10 +15,10 @@ class IEXClient: IClient {
 
         val response = url.asyncHttpGet()
 
-        response.await().use{
+        response.await().use {
             val price: Double? = it.body()?.string()?.toDouble()
             if (price != null) {
-               return StockPrice(price)
+                return StockPrice(price)
             }
             return null
         }
