@@ -1,3 +1,6 @@
 package com.fetcher.dtos
 
-data class StockPrice(val price: Double?)
+import com.google.gson.annotations.SerializedName
+
+
+data class StockQuote(@SerializedName("symbol") val symbol: String, @SerializedName("companyName") val companyName: String, @SerializedName("close") val close: Double)

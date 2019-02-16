@@ -6,10 +6,8 @@ import io.ktor.features.*
 import io.ktor.routing.*
 import io.ktor.gson.*
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import com.fetcher.iex.*
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -31,10 +29,10 @@ fun Application.module(testing: Boolean = false)  {
             if (ticker != null) {
                 coroutineScope {
                     async {
-                        val price = IEXClient.retrievePriceAsync(ticker)?.price
+                        val price = IEXClient.retrievePriceAsync(ticker)
 
                         if (price != null) {
-                            call.respondText("$ticker current price is $$price")
+                            call.respond(price)
                         } else {
                             call.respondText("Could not find price for $ticker")
                         }

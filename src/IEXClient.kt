@@ -1,25 +1,38 @@
 package com.fetcher.iex
 
-import com.fetcher.dtos.StockPrice
+import com.fetcher.dtos.StockQuote
+import com.google.gson.Gson
 import io.github.rybalkinsd.kohttp.ext.asyncHttpGet
+import com.typesafe.config.ConfigFactory
+
+
+
 
 interface IClient {
-    suspend fun retrievePriceAsync(ticker: String): StockPrice?
+    suspend fun retrievePriceAsync(ticker: String): StockQuote?
 }
 
 object IEXClient : IClient {
-    private val _url = "https://api.iextrading.com/1.0/"
 
-    override suspend fun retrievePriceAsync(ticker: String): StockPrice? {
-        val url = "$_url/stock/$ticker/price"
+    override suspend fun retrievePriceAsync(ticker: String): StockQuote? {
+        val conf = ConfigFactory.load()
+        val _url = conf.getString("secrets.iex.url")
+        val _token = conf.getString("secrets.iex.token")
+
+        val url = "${_url}/stock/${ticker}/quote?token=${_token}"
+
 
         val response = url.asyncHttpGet()
 
         response.await().use {
-            val price: Double? = it.body()?.string()?.toDouble()
-            if (price != null) {
-                return StockPrice(price)
+            val response: String?  = it.body()?.string()
+
+            if (response != null) {
+                val quote = Gson().fromJson(response, StockQuote::class.java)
+
+                return quote
             }
+
             return null
         }
     }
