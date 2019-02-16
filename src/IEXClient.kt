@@ -30,7 +30,7 @@ object IEXClient : IClient {
                 return null
             }
 
-            return  Gson().fromJson(response.string(), StockQuote::class.java)
+            return Gson().fromJson(response.string(), StockQuote::class.java)
         }
     }
 }
