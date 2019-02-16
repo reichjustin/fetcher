@@ -4,9 +4,7 @@ import com.fetcher.dtos.StockQuote
 import com.google.gson.Gson
 import io.github.rybalkinsd.kohttp.ext.asyncHttpGet
 import com.typesafe.config.ConfigFactory
-
-
-
+import okhttp3.ResponseBody
 
 interface IClient {
     suspend fun retrievePriceAsync(ticker: String): StockQuote?
@@ -14,26 +12,25 @@ interface IClient {
 
 object IEXClient : IClient {
 
-    override suspend fun retrievePriceAsync(ticker: String): StockQuote? {
+    private fun getStockQuoteRequestUrl(ticker: String): String {
         val conf = ConfigFactory.load()
-        val _url = conf.getString("secrets.iex.url")
-        val _token = conf.getString("secrets.iex.token")
+        val baseUrl = conf.getString("secrets.iex.url")
+        val token = conf.getString("secrets.iex.token")
 
-        val url = "${_url}/stock/${ticker}/quote?token=${_token}"
+       return "$baseUrl/stock/$ticker/quote?token=$token"
+    }
 
-
-        val response = url.asyncHttpGet()
+    override suspend fun retrievePriceAsync(ticker: String): StockQuote? {
+        val response = this.getStockQuoteRequestUrl(ticker).asyncHttpGet()
 
         response.await().use {
-            val response: String?  = it.body()?.string()
+            val response: ResponseBody?  = it.body()
 
-            if (response != null) {
-                val quote = Gson().fromJson(response, StockQuote::class.java)
-
-                return quote
+            if (response === null) {
+                return null
             }
 
-            return null
+            return  Gson().fromJson(response.string(), StockQuote::class.java)
         }
     }
 }
