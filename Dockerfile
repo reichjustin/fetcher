@@ -6,4 +6,4 @@ COPY . /src
 WORKDIR /src
 RUN ./gradlew
 
-CMD ["java","-jar","./build/libs/com.fetcher-0.0.1.jar"]
+CMD ["java","-jar","./build/libs/com.fetcher-0.0.2.jar"]
